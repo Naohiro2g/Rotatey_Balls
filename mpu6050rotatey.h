@@ -64,7 +64,7 @@ void mpu_init(int sdaPin, int sclPin) {
 }
 
 
-void mpu_calibrate(intPin) {
+void mpu_calibrate(int intPin) {
   // calibration
   Serial.print("Calculate Calibration");
   
@@ -110,7 +110,7 @@ void mpu_calibrate(intPin) {
 }
 
 
-void calcRotation(intPin){
+void calcRotation(int intPin){
   // Calculate angle from accel/gyro
   int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
   int intPin;
