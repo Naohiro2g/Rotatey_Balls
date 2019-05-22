@@ -15,9 +15,9 @@
 // fps counter
 unsigned int fpsall = 30;
 
-int sdaPin = 21;
-int sclPin = 22;
-int intPin = 14;
+const int sdaPin = 21;
+const int sclPin = 22;
+const int intPin = 14;
 
 const double halfC = M_PI / 180;
 
@@ -162,11 +162,11 @@ void setup() {
 
   Serial.begin(115200);
 
-  mpu_init(sdaPin, sclPin, intPin);// sda, scl, interrupt
-  mpu_calibrate();
+  mpu_init(sdaPin, sclPin);// sda, scl
+  mpu_calibrate(intPin);
 
   // store initial position
-  calcRotation(); // read from MPU
+  calcRotation(intPin); // read from MPU
   lastAngleX = angleX;
   lastAngleY = angleY;
   lastAngleZ = angleZ;
@@ -184,7 +184,7 @@ void setup() {
 
 void loop() {
 
-  calcRotation(); // read from MPU
+  calcRotation(intPin); // read from MPU
 
 #if DEBUG == true
   Serial.print("angle{X,Y,Z}= ");
