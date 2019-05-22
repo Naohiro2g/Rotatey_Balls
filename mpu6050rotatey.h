@@ -18,6 +18,7 @@ float lastAngleX, lastAngleY, lastAngleZ;
 float interval, preInterval;
 float acc_x, acc_y, acc_z, acc_angle_x, acc_angle_y;
 float /*gx, gy, gz,*/ dpsX, dpsY, dpsZ;
+int intPin;
 
 // I2c Write
 void writeMPU6050(byte reg, byte data) {
@@ -39,7 +40,8 @@ byte readMPU6050(byte reg) {
 
 // init
 void mpu_init(int sdaPin, int sclPin, int intPin) {
-  Wire.begin(sdaPin, sclPin, intPin);
+  Wire.begin(sdaPin, sclPin);
+  
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(0x6B); // PWR_MGMT_1 register
   Wire.write(0); // set to zero (wakes up the MPU-6050)
@@ -70,6 +72,7 @@ void mpu_calibrate() {
   for(int i = 0; i < 3000; i++){
     
     int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
+    int intPin
     
     Wire.beginTransmission(MPU6050_ADDR);
     Wire.write(0x3B);
@@ -111,6 +114,7 @@ void mpu_calibrate() {
 void calcRotation(){
   // Calculate angle from accel/gyro
   int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
+  int intPin;
   
   // Instructs the MPU 6050 to output a total of 14 bytes of data from the register address 0 × 3 B
   Wire.beginTransmission(MPU6050_ADDR);
