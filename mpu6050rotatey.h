@@ -39,7 +39,7 @@ byte readMPU6050(byte reg) {
 
 // init
 void mpu_init(int sda, int scl) {
-  Wire.begin(21, 22);
+  Wire.begin(sda, scl);
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(0x6B); // PWR_MGMT_1 register
   Wire.write(0); // set to zero (wakes up the MPU-6050)
