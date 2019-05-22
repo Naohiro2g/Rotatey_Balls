@@ -74,7 +74,7 @@ void mpu_calibrate() {
     Wire.beginTransmission(MPU6050_ADDR);
     Wire.write(0x3B);
     Wire.endTransmission(false);
-    Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t) 14), (bool)true);
+    Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t) intPin), (bool)true);
   
     raw_acc_x = Wire.read() << 8 | Wire.read();
     raw_acc_y = Wire.read() << 8 | Wire.read();
@@ -116,7 +116,7 @@ void calcRotation(){
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(0x3B);
   Wire.endTransmission(false);
-  Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t)14), (bool)true);
+  Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t)intPin), (bool)true);
   
   // Read the output data, bit shift operation
   raw_acc_x = Wire.read() << 8 | Wire.read();
