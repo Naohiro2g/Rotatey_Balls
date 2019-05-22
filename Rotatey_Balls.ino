@@ -17,6 +17,7 @@ unsigned int fpsall = 30;
 
 int sdaPin = 21;
 int sclPin = 22;
+int intPin = 14;
 
 const double halfC = M_PI / 180;
 
