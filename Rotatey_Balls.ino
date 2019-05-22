@@ -10,14 +10,13 @@
 #include "SSD1306.h" // alias for `#include "SSD1306Wire.h"`
 #include "OLEDDisplayUi.h"
 
-#define DEBUG false
+#define DEBUG true
 
 // fps counter
 unsigned int fpsall = 30;
 
 const int sdaPin = 21;
 const int sclPin = 22;
-const int intPin = 14;
 
 const double halfC = M_PI / 180;
 
@@ -41,7 +40,7 @@ typedef struct {
 typedef struct {
     uint16_t id1;
     uint16_t id2;
-} Lines;  
+} Lines;
 
 
 /* https://codepen.io/ge1doot/pen/grWrLe */
@@ -73,10 +72,9 @@ static Coord3DSet CubePoints3DArray[21] = {
   {  0,  -1,  -1 },
 
   {0, 0, 0}
-  
 };
 
-static Coord3DSet CubePoints2DArray[21] = {
+static Coord2DSet CubePoints2DArray[21] = {
   { 0,0 },
   { 0,0 },
   { 0,0 },
@@ -95,7 +93,7 @@ static Coord3DSet CubePoints2DArray[21] = {
   { 0,0 },
   { 0,0 },
   { 0,0 },
-  
+
   { 0,0 },
   { 0,0 },
   { 0,0 },
@@ -130,7 +128,7 @@ static Lines LinesArray[12] = {
   { 5, 8 },
   { 7, 6 }
  */
-  
+
 };
 
 // used for sorting points by depth
@@ -163,10 +161,10 @@ void setup() {
   Serial.begin(115200);
 
   mpu_init(sdaPin, sclPin);// sda, scl
-  mpu_calibrate(intPin);
+  mpu_calibrate();
 
   // store initial position
-  calcRotation(intPin); // read from MPU
+  calcRotation(); // read from MPU
   lastAngleX = angleX;
   lastAngleY = angleY;
   lastAngleZ = angleZ;
@@ -179,27 +177,27 @@ void setup() {
   display.setColor(WHITE);
 
   //xTaskCreatePinnedToCore(loop1, "loop1", 4096, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
-  
+
 }
 
 void loop() {
 
-  calcRotation(intPin); // read from MPU
+  calcRotation(); // read from MPU
 
 #if DEBUG == true
   Serial.print("angle{X,Y,Z}= ");
   Serial.print(angleX);
-  Serial.print("\t,");
+  Serial.print(",\t");
   Serial.print(angleY);
-  Serial.print("\t,");
-  Serial.print(angleZ);
+  Serial.print(",\t");
+  Serial.println(angleZ);
   Serial.print("\t || acc_{x,y,z}= ");
   Serial.print(acc_x);
-  Serial.print("\t,");
+  Serial.print(",\t");
   Serial.print(acc_y);
-  Serial.print("\t,");
+  Serial.print(",\t");
   Serial.println(acc_z);
-#endif  
+#endif
 
   display.clear();
   cubeloop();
@@ -207,12 +205,12 @@ void loop() {
   fps(1);
   msOverlay();
   display.display();
-  
+
   // store last position
   lastAngleX = angleX;
   lastAngleY = angleY;
   lastAngleZ = angleZ;
- 
+
 }
 
 /*
@@ -223,7 +221,7 @@ void loop1() {
   unsigned int signalMin = sampleSize;
 
   while (millis() - startMillis < sampleWindow) {
-      sample = analogRead(35); 
+      sample = analogRead(35);
       if (sample < sampleSize){   // toss out spurious readings
          if (sample > signalMax) {
             signalMax = sample;  // save just the max levels
@@ -265,7 +263,7 @@ void cubeloop() {
 
 void vectorRotateXYZ(double angle, int axe) {
   int8_t m1; // coords polarity
-  uint8_t i1, i2; // coords index
+//  uint8_t i1, i2; // coords index
   double t1, t2;
   uint16_t i;
   for( i=0; i<totalpoints; i++ ) {
@@ -323,11 +321,11 @@ void spherePlot() {
   int transid;
   for( i=0; i<totalpoints; i++ ) {
     transid = zsortedpoints[i];
-    CubePoints2DArray[transid].x = centerX + scale/(1+CubePoints3DArray[transid].z/sZ)*CubePoints3DArray[transid].x; 
+    CubePoints2DArray[transid].x = centerX + scale/(1+CubePoints3DArray[transid].z/sZ)*CubePoints3DArray[transid].x;
     CubePoints2DArray[transid].y = centerY + scale/(1+CubePoints3DArray[transid].z/sZ)*CubePoints3DArray[transid].y;
     radius = (-CubePoints3DArray[transid].z+3)*2.5;
     halfradius = radius / 2;
-    display.setColor(BLACK);  
+    display.setColor(BLACK);
     //display.fillCircle(CubePoints2DArray[transid].x, CubePoints2DArray[transid].y, radius-1);
     display.fillCircle(CubePoints2DArray[transid].x, CubePoints2DArray[transid].y, radius+1);
     display.setColor(WHITE);
@@ -355,7 +353,7 @@ static inline void fps(const int seconds){
   static unsigned long lastMillis;
   static unsigned long frameCount;
   static unsigned int framesPerSecond;
-  
+
   // It is best if we declare millis() only once
   unsigned long now = millis();
   frameCount ++;

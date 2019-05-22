@@ -32,7 +32,7 @@ byte readMPU6050(byte reg) {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(reg);
   Wire.endTransmission(true);
-  Wire.requestFrom(MPU6050_ADDR, 1/*length*/); 
+  Wire.requestFrom(MPU6050_ADDR, 1/*length*/);
   byte data =  Wire.read();
   return data;
 }
@@ -40,14 +40,14 @@ byte readMPU6050(byte reg) {
 // init
 void mpu_init(int sdaPin, int sclPin) {
   Wire.begin(sdaPin, sclPin);
-  
+
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(0x6B); // PWR_MGMT_1 register
   Wire.write(0); // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
 
   delay(100);
-  
+
   // check if connection worked
   if (readMPU6050(MPU6050_WHO_AM_I) != 0x68) {
     Serial.println("\nWHO_AM_I error.");
@@ -64,24 +64,33 @@ void mpu_init(int sdaPin, int sclPin) {
 }
 
 
-void mpu_calibrate(int intPin) {
+void mpu_calibrate() {
   // calibration
   Serial.print("Calculate Calibration");
-  
+
   for(int i = 0; i < 3000; i++){
-    
+
+//    int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
     int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
-    int intPin;
-    
+
     Wire.beginTransmission(MPU6050_ADDR);
     Wire.write(0x3B);
     Wire.endTransmission(false);
-    Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t)intPin), (bool)true);
-  
+    Wire.requestFrom((uint16_t)MPU6050_ADDR, ((uint8_t)14), (bool)true);
+
     raw_acc_x = Wire.read() << 8 | Wire.read();
     raw_acc_y = Wire.read() << 8 | Wire.read();
     raw_acc_z = Wire.read() << 8 | Wire.read();
     raw_t = Wire.read() << 8 | Wire.read();
+  //  Serial.print("raw_acc_x : ");
+  //  Serial.println(raw_acc_x);
+  //  Serial.print("raw_acc_y : ");
+  //  Serial.println(raw_acc_y);
+  //  Serial.print("raw_acc_z : ");
+  //  Serial.println(raw_acc_z);
+  //  Serial.print("raw_t : ");
+  //  Serial.println(raw_t);
+
     raw_gyro_x = Wire.read() << 8 | Wire.read();
     raw_gyro_y = Wire.read() << 8 | Wire.read();
     raw_gyro_z = Wire.read() << 8 | Wire.read();
@@ -110,31 +119,33 @@ void mpu_calibrate(int intPin) {
 }
 
 
-void calcRotation(int intPin){
+void calcRotation(){
   // Calculate angle from accel/gyro
   int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
-  int intPin;
-  
+
   // Instructs the MPU 6050 to output a total of 14 bytes of data from the register address 0 × 3 B
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(0x3B);
   Wire.endTransmission(false);
-  Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t)intPin), (bool)true);
-  
+  Wire.requestFrom((uint16_t)MPU6050_ADDR, ((uint8_t)14), (bool)true);
+
   // Read the output data, bit shift operation
   raw_acc_x = Wire.read() << 8 | Wire.read();
   raw_acc_y = Wire.read() << 8 | Wire.read();
   raw_acc_z = Wire.read() << 8 | Wire.read();
   raw_t = Wire.read() << 8 | Wire.read();
+  //Serial.print("raw_t : ");
+  //Serial.println(raw_t);
+
   raw_gyro_x = Wire.read() << 8 | Wire.read();
   raw_gyro_y = Wire.read() << 8 | Wire.read();
   raw_gyro_z = Wire.read() << 8 | Wire.read();
-  
+
   // convert to G (gravity unit)
   acc_x = ((float)raw_acc_x) / 16384.0;
   acc_y = ((float)raw_acc_y) / 16384.0;
   acc_z = ((float)raw_acc_z) / 16384.0;
-  
+
   // Calculate angle from acceleration sensor
   acc_angle_y = atan2(acc_x, acc_z + abs(acc_y)) * -MPIDEG;
   acc_angle_x = atan2(acc_y, acc_z + abs(acc_x)) * MPIDEG;
@@ -142,16 +153,16 @@ void calcRotation(int intPin){
   dpsX = ((float)raw_gyro_x) / 65.5; // LSB sensitivity: 65.5 LSB/dps @ ±500dps
   dpsY = ((float)raw_gyro_y) / 65.5;
   dpsZ = ((float)raw_gyro_z) / 65.5;
-  
+
   // Calculate the elapsed time from the last calculation
   interval = millis() - preInterval;
   preInterval = millis();
-  
+
   // numerical integral
   gyro_angle_x += (dpsX - offsetX) * (interval * 0.001);
   gyro_angle_y += (dpsY - offsetY) * (interval * 0.001);
   gyro_angle_z += (dpsZ - offsetZ) * (interval * 0.001);
-  
+
   // complementary filter
   angleX = (0.996 * gyro_angle_x) + (0.004 * acc_angle_x);
   angleY = (0.996 * gyro_angle_y) + (0.004 * acc_angle_y);
@@ -166,6 +177,5 @@ void calcRotation(int intPin){
   if(angleY<-180) angleY+=360;
   if(angleZ>180) angleZ-=360;
   if(angleZ<-180) angleZ+=360;
-  
-}
 
+}
