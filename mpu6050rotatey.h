@@ -18,7 +18,6 @@ float lastAngleX, lastAngleY, lastAngleZ;
 float interval, preInterval;
 float acc_x, acc_y, acc_z, acc_angle_x, acc_angle_y;
 float /*gx, gy, gz,*/ dpsX, dpsY, dpsZ;
-int intPin;
 
 // I2c Write
 void writeMPU6050(byte reg, byte data) {
@@ -39,7 +38,7 @@ byte readMPU6050(byte reg) {
 }
 
 // init
-void mpu_init(int sdaPin, int sclPin, int intPin) {
+void mpu_init(int sdaPin, int sclPin) {
   Wire.begin(sdaPin, sclPin);
   
   Wire.beginTransmission(MPU6050_ADDR);
@@ -65,7 +64,7 @@ void mpu_init(int sdaPin, int sclPin, int intPin) {
 }
 
 
-void mpu_calibrate() {
+void mpu_calibrate(intPin) {
   // calibration
   Serial.print("Calculate Calibration");
   
@@ -77,7 +76,7 @@ void mpu_calibrate() {
     Wire.beginTransmission(MPU6050_ADDR);
     Wire.write(0x3B);
     Wire.endTransmission(false);
-    Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t) intPin), (bool)true);
+    Wire.requestFrom((uint8_t)MPU6050_ADDR, ((size_t)intPin), (bool)true);
   
     raw_acc_x = Wire.read() << 8 | Wire.read();
     raw_acc_y = Wire.read() << 8 | Wire.read();
@@ -111,7 +110,7 @@ void mpu_calibrate() {
 }
 
 
-void calcRotation(){
+void calcRotation(intPin){
   // Calculate angle from accel/gyro
   int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
   int intPin;
