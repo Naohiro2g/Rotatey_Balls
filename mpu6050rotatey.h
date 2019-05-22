@@ -71,7 +71,7 @@ void mpu_calibrate(int intPin) {
   for(int i = 0; i < 3000; i++){
     
     int16_t raw_acc_x, raw_acc_y, raw_acc_z, raw_t, raw_gyro_x, raw_gyro_y, raw_gyro_z ;
-    int intPin
+    int intPin;
     
     Wire.beginTransmission(MPU6050_ADDR);
     Wire.write(0x3B);
