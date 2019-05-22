@@ -162,7 +162,7 @@ void setup() {
 
   Serial.begin(115200);
 
-  mpu_init(sdaPin, sclPin);// sda, scl
+  mpu_init(sdaPin, sclPin, intPin);// sda, scl, interrupt
   mpu_calibrate();
 
   // store initial position
